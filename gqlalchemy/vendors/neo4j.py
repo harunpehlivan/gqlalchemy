@@ -69,21 +69,19 @@ class Neo4j(DatabaseClient):
 
     def get_indexes(self) -> List[Neo4jIndex]:
         """Returns a list of all database indexes (label and label-property types)."""
-        indexes = []
-        for result in self.execute_and_fetch("SHOW INDEX;"):
-            indexes.append(
-                Neo4jIndex(
-                    result[Neo4jConstants.LABEL][0]
-                    if result[Neo4jConstants.TYPE] != Neo4jConstants.LOOKUP
-                    else result[Neo4jConstants.LABEL],
-                    result[Neo4jConstants.PROPERTIES][0]
-                    if result[Neo4jConstants.TYPE] != Neo4jConstants.LOOKUP
-                    else result[Neo4jConstants.PROPERTIES],
-                    result[Neo4jConstants.TYPE],
-                    result[Neo4jConstants.UNIQUENESS],
-                )
+        return [
+            Neo4jIndex(
+                result[Neo4jConstants.LABEL][0]
+                if result[Neo4jConstants.TYPE] != Neo4jConstants.LOOKUP
+                else result[Neo4jConstants.LABEL],
+                result[Neo4jConstants.PROPERTIES][0]
+                if result[Neo4jConstants.TYPE] != Neo4jConstants.LOOKUP
+                else result[Neo4jConstants.PROPERTIES],
+                result[Neo4jConstants.TYPE],
+                result[Neo4jConstants.UNIQUENESS],
             )
-        return indexes
+            for result in self.execute_and_fetch("SHOW INDEX;")
+        ]
 
     def ensure_indexes(self, indexes: List[Neo4jIndex]) -> None:
         """Ensures that database indexes match input indexes."""
@@ -99,16 +97,14 @@ class Neo4j(DatabaseClient):
         self,
     ) -> List[Union[Neo4jConstraintExists, Neo4jConstraintUnique]]:
         """Returns a list of all database constraints (label and label-property types)."""
-        constraints: List[Union[Neo4jConstraintExists, Neo4jConstraintUnique]] = []
-        for result in self.execute_and_fetch("SHOW CONSTRAINTS;"):
-            if result[Neo4jConstants.TYPE] == "UNIQUENESS":
-                constraints.append(
-                    Neo4jConstraintUnique(
-                        result[Neo4jConstants.LABEL][0],
-                        tuple(result[Neo4jConstants.PROPERTIES]),
-                    )
-                )
-        return constraints
+        return [
+            Neo4jConstraintUnique(
+                result[Neo4jConstants.LABEL][0],
+                tuple(result[Neo4jConstants.PROPERTIES]),
+            )
+            for result in self.execute_and_fetch("SHOW CONSTRAINTS;")
+            if result[Neo4jConstants.TYPE] == "UNIQUENESS"
+        ]
 
     def get_exists_constraints(
         self,
@@ -171,16 +167,15 @@ class Neo4j(DatabaseClient):
         If no node is found or no properties are set it raises a GQLAlchemyError.
         """
         if node._id is not None:
-            result = self.load_node_with_id(node)
+            return self.load_node_with_id(node)
         elif node.has_unique_fields():
-            matching_node = self.get_variable_assume_one(
-                query_result=self._get_nodes_with_unique_fields(node), variable_name="node"
+            return self.get_variable_assume_one(
+                query_result=self._get_nodes_with_unique_fields(node),
+                variable_name="node",
             )
-            result = matching_node
-        else:
-            result = self.load_node_with_all_properties(node)
 
-        return result
+        else:
+            return self.load_node_with_all_properties(node)
 
     def load_relationship(self, relationship: Relationship) -> Optional[Relationship]:
         """Returns a relationship loaded from the database.

@@ -49,12 +49,7 @@ def create_push_stream(
 def show_streams(
     context: mgp.ProcCtx,
 ) -> mgp.Record(name=str, topic=str):
-    records = []
-
-    for k, v in topics_by_name.items():
-        records.append(mgp.Record(name=k, topic=v))
-
-    return records
+    return [mgp.Record(name=k, topic=v) for k, v in topics_by_name.items()]
 
 
 @mgp.read_proc
@@ -76,7 +71,7 @@ def push(
     message = ""
     if isinstance(payload, dict):
         message = payload
-    elif isinstance(payload, mgp.Vertex) or isinstance(payload, mgp.Edge):
+    elif isinstance(payload, (mgp.Vertex, mgp.Edge)):
         message = {x.name: x.value for x in payload.properties.items()}
     else:
         raise Exception("Can't have message type other than Map / Vertex / Edge")

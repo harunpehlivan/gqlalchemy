@@ -366,9 +366,7 @@ class PyArrowDataLoader(DataLoader):
         for batch in dataset.to_batches(
             columns=columns,
         ):
-            for batch_item in batch.to_pylist():
-                yield batch_item
-
+            yield from batch.to_pylist()
         print("Data loaded.")
 
 

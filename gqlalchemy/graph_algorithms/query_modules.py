@@ -145,15 +145,14 @@ def parse_field(
     Args:
         vars_field: signature field inside parentheses
     """
-    if len(vars_field) == 0:
+    if not vars_field:
         return []
 
     vars = []
 
     for var in vars_field.split(COMMA_SEP):
-        var_dict = {}
         sides = var.split(name_type_delimiter)
-        var_dict[QM_KEY_TYPE] = sides[1]
+        var_dict = {QM_KEY_TYPE: sides[1]}
         if default_value_delimiter in sides[0]:
             splt = sides[0].split(default_value_delimiter)
             var_dict[QM_KEY_NAME] = splt[0]

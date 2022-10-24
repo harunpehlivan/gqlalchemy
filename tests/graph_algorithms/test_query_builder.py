@@ -26,11 +26,19 @@ def test_memgraph_query_builder_methods_exist(memgraph: Memgraph):
     mg_qb = MemgraphQueryBuilder()
     simple_qb = QueryBuilder()
 
-    mg_qb_methods = set([method_name for method_name in dir(mg_qb) if callable(getattr(mg_qb, method_name))])
+    mg_qb_methods = {
+        method_name
+        for method_name in dir(mg_qb)
+        if callable(getattr(mg_qb, method_name))
+    }
 
-    simple_qb_methods = set(
-        [method_name for method_name in dir(simple_qb) if callable(getattr(simple_qb, method_name))]
-    )
+
+    simple_qb_methods = {
+        method_name
+        for method_name in dir(simple_qb)
+        if callable(getattr(simple_qb, method_name))
+    }
+
 
     query_module_names = mg_qb_methods - simple_qb_methods
     actual_query_module_names = [procedure.name.replace(".", "_", 1) for procedure in memgraph.get_procedures()]

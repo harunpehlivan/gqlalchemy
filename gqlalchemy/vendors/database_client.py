@@ -189,8 +189,8 @@ class DatabaseClient(ABC):
 
     def save_nodes(self, nodes: List[Node]) -> None:
         """Saves a list of nodes to the database."""
-        for i in range(len(nodes)):
-            nodes[i]._id = self.save_node(nodes[i])._id
+        for node in nodes:
+            node._id = self.save_node(node)._id
 
     def save_node_with_id(self, node: Node) -> Optional[Node]:
         """Saves a node to the database using the internal id."""
@@ -283,8 +283,8 @@ class DatabaseClient(ABC):
 
     def save_relationships(self, relationships: List[Relationship]) -> None:
         """Saves a list of relationships to the database."""
-        for i in range(len(relationships)):
-            relationships[i]._id = self.save_relationship(relationships[i])._id
+        for relationship in relationships:
+            relationship._id = self.save_relationship(relationship)._id
 
     def save_relationship_with_id(self, relationship: Relationship) -> Optional[Relationship]:
         """Saves a relationship to the database using the relationship._id."""

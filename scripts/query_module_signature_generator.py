@@ -12,10 +12,16 @@ if __name__ == "__main__":
     with open(QUERIES_DEST, "w") as f:
         for query_module in modules:
             arguments_upper = [f"{x[QM_KEY_NAME]}: {x[QM_KEY_TYPE]}" for x in query_module.arguments]
-            arguments_upper_str = "" if len(arguments_upper) == 0 else f", {', '.join(arguments_upper)}"
+            arguments_upper_str = (
+                f", {', '.join(arguments_upper)}" if arguments_upper else ""
+            )
+
 
             arguments_lower = [f"{x[QM_KEY_NAME]}" for x in query_module.arguments]
-            arguments_lower_str = "" if len(arguments_lower) == 0 else f", ({', '.join(arguments_lower)})"
+            arguments_lower_str = (
+                f", ({', '.join(arguments_lower)})" if arguments_lower else ""
+            )
+
 
             f.write(f"def {query_module.name.replace('.', '_')}(self{arguments_upper_str}) -> DeclarativeBase:\n")
 

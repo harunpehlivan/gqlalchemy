@@ -212,9 +212,8 @@ class MemgraphInstanceBinary(MemgraphInstance):
         wait_for_port(self.host, self.port)
 
     def _stop_instance(self) -> None:
-        procs = set()
         process = psutil.Process(self.proc_mg.pid)
-        procs.add(process)
+        procs = {process}
         for proc in process.children(recursive=True):
             procs.add(proc)
             proc.kill()
