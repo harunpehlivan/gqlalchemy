@@ -165,7 +165,7 @@ def test_nx_create_edge_and_node_with_index():
 
     actual_cypher_queries = list(nx_to_cypher(graph, NetworkXCypherConfig(create_index=True)))
 
-    assert actual_cypher_queries[0:3] == expected_cypher_queries[0:3]
+    assert actual_cypher_queries[:3] == expected_cypher_queries[:3]
     assert set(actual_cypher_queries[3:5]) == set(expected_cypher_queries[3:5])
     assert actual_cypher_queries[5:7] == expected_cypher_queries[5:7]
 

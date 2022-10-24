@@ -61,7 +61,7 @@ def test_simple_nx_to_memgraph(memgraph: Memgraph):
 
     actual_edges = list(memgraph.execute_and_fetch("MATCH ()-[e]->() RETURN e"))
     assert len(actual_edges) == 2
-    for i, edge in enumerate(actual_edges):
+    for edge in actual_edges:
         assert edge["e"]._type == "TO"
 
 

@@ -120,7 +120,7 @@ def _check_for_index_hint(
 def _insert_queries(queries: List[str], host: str, port: int, username: str, password: str, encrypted: bool) -> None:
     """Used by multiprocess insertion of nx into memgraph, works on a chunk of queries."""
     memgraph = Memgraph(host, port, username, password, encrypted)
-    while len(queries) > 0:
+    while queries:
         try:
             query = queries.pop()
             memgraph.execute(query)

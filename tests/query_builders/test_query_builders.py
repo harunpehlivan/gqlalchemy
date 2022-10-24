@@ -1054,28 +1054,19 @@ class TestMemgraphNeo4jQueryBuilder:
         mock.assert_called_with(expected_query)
 
     def test_return_alias_set(self, vendor):
-        test_set = set()
-        test_set.add(("L1", "first"))
-        test_set.add("L2")
-
+        test_set = {("L1", "first"), "L2"}
         query_builder = vendor[1].return_(results=test_set).construct_query()
         expected_query = [" RETURN L1 AS first, L2 ", " RETURN L2, L1 AS first "]
 
         assert query_builder in expected_query
 
     def test_return_alias_set_int(self, vendor):
-        test_set = set()
-        test_set.add(("L1", 1))
-        test_set.add("L2")
-
+        test_set = {("L1", 1), "L2"}
         with pytest.raises(GQLAlchemyResultQueryTypeError):
             vendor[1].return_(results=test_set).construct_query()
 
     def test_return_alias_set_datetime(self, vendor):
-        test_set = set()
-        test_set.add(("L1", "first"))
-        test_set.add(datetime.date)
-
+        test_set = {("L1", "first"), datetime.date}
         with pytest.raises(GQLAlchemyResultQueryTypeError):
             vendor[1].return_(results=test_set).construct_query()
 
@@ -1086,21 +1077,14 @@ class TestMemgraphNeo4jQueryBuilder:
             vendor[1].return_(test).construct_query()
 
     def test_return_alias_set_multiple(self, vendor):
-        test_set = set()
-        test_set.add(("L1", "first"))
-        test_set.add(("L2", "second"))
-
+        test_set = {("L1", "first"), ("L2", "second")}
         query_builder = vendor[1].return_(results=test_set).construct_query()
         expected_query = [" RETURN L1 AS first, L2 AS second ", " RETURN L2 AS second, L1 AS first "]
 
         assert query_builder in expected_query
 
     def test_return_alias_set_multiple_2(self, vendor):
-        test_set = set()
-        test_set.add(("L1", "first"))
-        test_set.add(("L2", "second"))
-        test_set.add("L3")
-
+        test_set = {("L1", "first"), ("L2", "second"), "L3"}
         query_builder = vendor[1].return_(test_set).construct_query()
         expected_query = [
             " RETURN L1 AS first, L2 AS second, L3 ",

@@ -129,10 +129,7 @@ class MatchPartialQuery(PartialQuery):
         self.optional = optional
 
     def construct_query(self) -> str:
-        if self.optional:
-            return " OPTIONAL MATCH "
-
-        return " MATCH "
+        return " OPTIONAL MATCH " if self.optional else " MATCH "
 
 
 class MergePartialQuery(PartialQuery):
@@ -159,7 +156,7 @@ class CallPartialQuery(PartialQuery):
         self.arguments = to_cypher_qm_arguments(arguments)
 
     def construct_query(self) -> str:
-        return f" CALL {self.procedure}({self.arguments if self.arguments else ''}) "
+        return f" CALL {self.procedure}({self.arguments or ''}) "
 
 
 class WhereConditionPartialQuery(PartialQuery):
@@ -167,7 +164,10 @@ class WhereConditionPartialQuery(PartialQuery):
     _EXPRESSION = "expression"
 
     def __init__(self, item: str, operator: Operator, keyword: Where = Where.WHERE, is_negated: bool = False, **kwargs):
-        super().__init__(type=keyword.name if not is_negated else f"{keyword.name} {Where.NOT.name}")
+        super().__init__(
+            type=f"{keyword.name} {Where.NOT.name}" if is_negated else keyword.name
+        )
+
         self.query = self._build_where_query(item=item, operator=operator, **kwargs)
 
     def construct_query(self) -> str:
@@ -258,7 +258,7 @@ class NodePartialQuery(PartialQuery):
 
     def construct_query(self) -> str:
         """Constructs a node partial query."""
-        return f"({self.variable}{self.labels}{' ' + self.properties if self.properties else ''})"
+        return f"({self.variable}{self.labels}{f' {self.properties}' if self.properties else ''})"
 
 
 class RelationshipPartialQuery(PartialQuery):
@@ -305,11 +305,9 @@ class RelationshipPartialQuery(PartialQuery):
             return relationship_query
 
         if self._from:
-            relationship_query = f"<-[{relationship_query}]-"
+            return f"<-[{relationship_query}]-"
         else:
-            relationship_query = f"-[{relationship_query}]->"
-
-        return relationship_query
+            return f"-[{relationship_query}]->"
 
 
 class UnwindPartialQuery(PartialQuery):
@@ -426,7 +424,7 @@ class UnionPartialQuery(PartialQuery):
 
     def construct_query(self) -> str:
         """Creates a UNION statement Cypher partial query."""
-        return f" UNION{f' ALL' if self.include_duplicates else ''} "
+        return f" UNION{' ALL' if self.include_duplicates else ''} "
 
 
 class DeletePartialQuery(PartialQuery):
@@ -1363,11 +1361,10 @@ class DeclarativeBase(ABC):
         """
         query = self._construct_query()
 
-        result = next(self._connection.execute_and_fetch(query), None)
-
-        if result:
+        if result := next(self._connection.execute_and_fetch(query), None):
             return result[retrieve]
-        return result
+        else:
+            return result
 
     def foreach(
         self, variable: str, expression: str, update_clause: Union[str, List[str], Set[str]]
@@ -1465,9 +1462,7 @@ class DeclarativeBase(ABC):
         # if not self._any_variables_matched():
         #    raise NoVariablesMatchedException()
 
-        for partial_query in self._query:
-            query.append(partial_query.construct_query())
-
+        query.extend(partial_query.construct_query() for partial_query in self._query)
         joined_query = "".join(query)
         joined_query = re.sub("\\s\\s+", " ", joined_query)
         return joined_query

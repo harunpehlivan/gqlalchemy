@@ -20,31 +20,35 @@ from gqlalchemy import Field, Node, validator
 
 @pytest.mark.parametrize("database", ["neo4j", "memgraph"], indirect=True)
 def test_raise_value_error(database):
+
+
+
     class User(Node):
         name: str = Field(unique=True, db=database)
         age: int = Field()
         friends: Optional[List[str]] = Field()
 
         @validator("name", allow_reuse=True)
-        def name_can_not_be_empty(cls, v):
+        def name_can_not_be_empty(self, v):
             if v == "":
                 raise ValueError("name can't be empty")
 
             return v
 
         @validator("age", allow_reuse=True)
-        def age_must_be_greater_than_zero(cls, v):
+        def age_must_be_greater_than_zero(self, v):
             if v <= 0:
                 raise ValueError("age must be greater than zero")
 
             return v
 
         @validator("friends", each_item=True, allow_reuse=True)
-        def friends_must_be_(cls, v):
+        def friends_must_be_(self, v):
             if v == "":
                 raise ValueError("name can't be empty")
 
             return v
+
 
     with pytest.raises(ValueError):
         User(name="", age=26).save(database)

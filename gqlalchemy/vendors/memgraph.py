@@ -75,15 +75,13 @@ class Memgraph(DatabaseClient):
 
     def get_indexes(self) -> List[MemgraphIndex]:
         """Returns a list of all database indexes (label and label-property types)."""
-        indexes = []
-        for result in self.execute_and_fetch("SHOW INDEX INFO;"):
-            indexes.append(
-                MemgraphIndex(
-                    result[MemgraphConstants.LABEL],
-                    result[MemgraphConstants.PROPERTY],
-                )
+        return [
+            MemgraphIndex(
+                result[MemgraphConstants.LABEL],
+                result[MemgraphConstants.PROPERTY],
             )
-        return indexes
+            for result in self.execute_and_fetch("SHOW INDEX INFO;")
+        ]
 
     def ensure_indexes(self, indexes: List[MemgraphIndex]) -> None:
         """Ensures that database indexes match input indexes."""
@@ -150,10 +148,7 @@ class Memgraph(DatabaseClient):
 
     def get_streams(self) -> List[str]:
         """Returns a list of all streams."""
-        streams = []
-        for result in self.execute_and_fetch("SHOW STREAMS;"):
-            streams.append(result)
-        return streams
+        return list(self.execute_and_fetch("SHOW STREAMS;"))
 
     def drop_stream(self, stream: MemgraphStream) -> None:
         """Drop a stream."""
@@ -176,7 +171,7 @@ class Memgraph(DatabaseClient):
             if event_type == "ANY":
                 event_type = None
             elif len(event_type.split()) > 1:
-                [event_object, event_type] = [part for part in event_type.split()]
+                [event_object, event_type] = list(event_type.split())
 
             memgraph_triggers_list.append(
                 MemgraphTrigger(

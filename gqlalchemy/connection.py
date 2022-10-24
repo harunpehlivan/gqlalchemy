@@ -141,10 +141,15 @@ def _convert_memgraph_value(value: Any) -> Any:
     if isinstance(value, mgclient.Path):
         return Path.parse_obj(
             {
-                "_nodes": list([_convert_memgraph_value(node) for node in value.nodes]),
-                "_relationships": list([_convert_memgraph_value(rel) for rel in value.relationships]),
+                "_nodes": [
+                    _convert_memgraph_value(node) for node in value.nodes
+                ],
+                "_relationships": [
+                    _convert_memgraph_value(rel) for rel in value.relationships
+                ],
             }
         )
+
 
     return value
 
@@ -214,9 +219,12 @@ def _convert_neo4j_value(value: Any) -> Any:
     if isinstance(value, Neo4jPath):
         return Path.parse_obj(
             {
-                "_nodes": list([_convert_neo4j_value(node) for node in value.nodes]),
-                "_relationships": list([_convert_neo4j_value(rel) for rel in value.relationships]),
+                "_nodes": [_convert_neo4j_value(node) for node in value.nodes],
+                "_relationships": [
+                    _convert_neo4j_value(rel) for rel in value.relationships
+                ],
             }
         )
+
 
     return value

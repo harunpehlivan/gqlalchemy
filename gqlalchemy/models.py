@@ -291,11 +291,12 @@ class MemgraphTrigger:
         """Converts a Trigger to a cypher clause."""
         query = f"CREATE TRIGGER {self.name} "
         if self.event_type in TriggerEventType.list():
-            query += f"ON " + (
+            query += "ON " + (
                 f"{self.event_object} {self.event_type} "
                 if self.event_object in TriggerEventObject.list()
                 else f"{self.event_type} "
             )
+
         query += f"{self.execution_phase} COMMIT EXECUTE "
         query += f"{self.statement};"
         return query
@@ -403,7 +404,7 @@ class GraphObject(BaseModel):
             if value is not None:
                 cypher_fields.append(f"{variable_name}.{field} = {self.escape_value(value)}")
 
-        return " " + operator.join(cypher_fields) + " "
+        return f" {operator.join(cypher_fields)} "
 
     def _get_cypher_fields_or_block(self, variable_name: str) -> str:
         """Returns a cypher field assignment block separated by an OR
@@ -579,11 +580,11 @@ class Node(UniqueGraphObject, metaclass=NodeMetaclass):
 
     def has_unique_fields(self) -> bool:
         """Returns True if the Node has any unique fields."""
-        for field in self.__fields__:
-            if "unique" in self.__fields__[field].field_info.extra:
-                if getattr(self, field) is not None:
-                    return True
-        return False
+        return any(
+            "unique" in self.__fields__[field].field_info.extra
+            and getattr(self, field) is not None
+            for field in self.__fields__
+        )
 
     @property
     def _label(self) -> str:

@@ -95,10 +95,7 @@ def to_cypher_value(value: Any, config: NetworkXCypherConfig = None) -> str:
         lines = ", ".join(f"{k}: {to_cypher_value(v)}" for k, v in value.items())
         return f"{{{lines}}}"
 
-    if value is None:
-        return "null"
-
-    return f"'{value}'"
+    return "null" if value is None else f"'{value}'"
 
 
 def to_cypher_properties(properties: Optional[Dict[str, Any]] = None, config=None) -> str:
@@ -120,9 +117,7 @@ def to_cypher_properties(properties: Optional[Dict[str, Any]] = None, config=Non
 def to_cypher_labels(labels: Union[str, List[str], None]) -> str:
     """Converts labels to a Cypher label definition."""
     if labels:
-        if isinstance(labels, str):
-            return f":{labels}"
-        return f":{':'.join(labels)}"
+        return f":{labels}" if isinstance(labels, str) else f":{':'.join(labels)}"
     return ""
 
 

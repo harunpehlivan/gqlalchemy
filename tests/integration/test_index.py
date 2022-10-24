@@ -69,27 +69,30 @@ def test_index_on_label_and_property(memgraph):
 
 
 def test_false_index_in_node_class(memgraph):
+
     class User(Node, index=False, db=memgraph):
         id: str
 
     actual_index = memgraph.get_indexes()
-    assert set(actual_index) == set()
+    assert not set(actual_index)
 
 
 def test_false_index_no_db_in_node_class(memgraph):
+
     class User(Node, index=False):
         id: str
 
     actual_index = memgraph.get_indexes()
-    assert set(actual_index) == set()
+    assert not set(actual_index)
 
 
 def test_false_index_with_db_in_node_class(memgraph):
+
     class User(Node, index=False, db=memgraph):
         id: str
 
     actual_index = memgraph.get_indexes()
-    assert set(actual_index) == set()
+    assert not set(actual_index)
 
 
 def test_index_attr(memgraph):
@@ -136,7 +139,7 @@ def test_drop_index(memgraph):
     assert set(memgraph.get_indexes()) == {index2}
 
     memgraph.drop_index(index2)
-    assert set(memgraph.get_indexes()) == set()
+    assert not set(memgraph.get_indexes())
 
 
 def test_drop_duplicate_index(memgraph):
@@ -144,10 +147,10 @@ def test_drop_duplicate_index(memgraph):
 
     memgraph.create_index(index)
     memgraph.drop_index(index)
-    assert set(memgraph.get_indexes()) == set()
+    assert not set(memgraph.get_indexes())
 
     memgraph.drop_index(index)
-    assert set(memgraph.get_indexes()) == set()
+    assert not set(memgraph.get_indexes())
 
 
 def test_ensure_index(memgraph):
